@@ -28,7 +28,7 @@ console.log('Đã tạo tài khoản Admin thành công!');
   `);
   await db.run(`
   INSERT INTO episodes (movie_id, episode_number, title, video_url)
-  VALUES (?, 1, 'Tập 1', '//ok.ru/videoembed/16149834959381?nochat=1')
+  VALUES (?, 1, 'Tập 1', 'https://playmogo.com/e/outl6myc9qgq')
 `, [m1.lastID]);
   //2. Phim Dưa Hấu Lấp Lánh
   const m2 = await db.run(`
@@ -89,17 +89,18 @@ await db.run(`
       2020, 'SERIES', 'Hài Hước', 'Hàn Quốc', 120000
     )
   `);
-  
-
   await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
-    VALUES (?, 1, 'Tập 1', 'https://drive.google.com/file/d/1EbeEeR1XDpnWis_4aupxnrkPdA26GQMt/preview')
+    VALUES (?, 1, 'Tập 1', 'https://playmogo.com/e/karewqwmqzny')
   `, [m5.lastID]);
    await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
     VALUES (?, 2, 'Tập 2', 'https://drive.google.com/file/d/1vecEX9I0LH5v62vHZFPsvxZQ75EdPl11/preview')
   `, [m5.lastID]);
-  
+   await db.run(`
+    INSERT INTO episodes (movie_id, episode_number, title, video_url) 
+    VALUES (?, 3, 'Tập 3', 'https://playmogo.com/e/vy1w2lum52m9')
+  `, [m5.lastID]);
   console.log('✅ ĐÃ NẠP DỮ LIỆU THÀNH CÔNG!');
   process.exit();
 }
