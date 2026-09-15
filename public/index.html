@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Xem Phim Trực Tuyến</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  
+  <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto p-4 flex justify-between items-center gap-4">
+      <h1 class="text-2xl font-bold text-red-500 cursor-pointer flex items-center gap-2" onclick="filterMovies({})">
+        🎬 MOVIE NENE
+      </h1>
+
+      <div class="relative flex-1 max-w-md">
+        <input type="text" id="search-input" onkeyup="handleSearch(event)" placeholder="Nhập tên phim bạn muốn tìm kiếm..." 
+               class="w-full bg-gray-700 text-sm rounded-full px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <button class="absolute right-3 top-2.5 text-gray-400">🔍</button>
+      </div>
+
+      <div id="user-info" class="flex items-center gap-2 text-sm"></div>
+    </div>
+
+   
+    <nav class="bg-amber-950/80 border-t border-amber-900/40 text-sm font-semibold">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-center md:justify-start gap-1 md:gap-6 px-4 py-2">
+        <button onclick="filterMovies({})" class="hover:text-red-400 px-3 py-1 uppercase tracking-wider">Trang Chủ</button>
+
+        <div class="relative group">
+          <button class="hover:text-red-400 px-3 py-1 flex items-center gap-1 uppercase tracking-wider">Thể Loại ▼</button>
+          <div class="absolute hidden group-hover:block bg-gray-800 border border-gray-700 rounded shadow-xl py-2 w-40 z-50">
+            <a href="#" onclick="filterMovies({genre: 'Hành Động'})" class="block px-4 py-1.5 hover:bg-gray-700">Hành Động</a>
+            <a href="#" onclick="filterMovies({genre: 'Tình Cảm'})" class="block px-4 py-1.5 hover:bg-gray-700">Tình Cảm</a>
+            <a href="#" onclick="filterMovies({genre: 'Viễn Tưởng'})" class="block px-4 py-1.5 hover:bg-gray-700">Viễn Tưởng</a>
+            <a href="#" onclick="filterMovies({genre: 'Hoạt Hình'})" class="block px-4 py-1.5 hover:bg-gray-700">Hoạt Hình</a>
+          </div>
+        </div>
+
+        <div class="relative group">
+          <button class="hover:text-red-400 px-3 py-1 flex items-center gap-1 uppercase tracking-wider">Quốc Gia ▼</button>
+          <div class="absolute hidden group-hover:block bg-gray-800 border border-gray-700 rounded shadow-xl py-2 w-40 z-50">
+            <a href="#" onclick="filterMovies({country: 'Mỹ'})" class="block px-4 py-1.5 hover:bg-gray-700">Mỹ</a>
+            <a href="#" onclick="filterMovies({country: 'Hàn Quốc'})" class="block px-4 py-1.5 hover:bg-gray-700">Hàn Quốc</a>
+            <a href="#" onclick="filterMovies({country: 'Nhật Bản'})" class="block px-4 py-1.5 hover:bg-gray-700">Nhật Bản</a>
+            <a href="#" onclick="filterMovies({country: 'Việt Nam'})" class="block px-4 py-1.5 hover:bg-gray-700">Việt Nam</a>
+          </div>
+        </div>
+
+        <button onclick="filterMovies({type: 'CINEMA'})" class="hover:text-red-400 px-3 py-1 uppercase tracking-wider">Phim Chiếu Rạp</button>
+        <button onclick="filterMovies({type: 'SERIES'})" class="hover:text-red-400 px-3 py-1 uppercase tracking-wider">Phim Bộ</button>
+        <button onclick="filterMovies({type: 'SINGLE'})" class="hover:text-red-400 px-3 py-1 uppercase tracking-wider">Phim Lẻ</button>
+      </div>
+    </nav>
+    
+  </header>
+
+  
+  <main id="main-content" class="p-6 max-w-6xl mx-auto flex-1 w-full"></main>
+
+ 
+  <div id="auth-modal" class="fixed inset-0 bg-black/70 hidden justify-center items-center z-50">
+    <div class="bg-gray-800 p-6 rounded-lg w-96 border border-gray-700 relative">
+      <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white">✕</button>
+      
+      <div id="login-form">
+        <h3 class="text-xl font-bold mb-4 text-center">Đăng Nhập</h3>
+        <input type="text" id="login-username" placeholder="Tên đăng nhập" class="w-full bg-gray-700 p-2.5 rounded mb-3 text-sm border border-gray-600 focus:outline-none">
+        <input type="password" id="login-password" placeholder="Mật khẩu" class="w-full bg-gray-700 p-2.5 rounded mb-4 text-sm border border-gray-600 focus:outline-none">
+        <button onclick="submitLogin()" class="w-full bg-red-600 py-2.5 rounded font-bold hover:bg-red-700 transition">Đăng Nhập</button>
+        <p class="text-xs text-center mt-4 text-gray-400">Chưa có tài khoản? <span onclick="switchAuthMode('register')" class="text-red-400 cursor-pointer hover:underline">Đăng ký ngay</span></p>
+      </div>
+
+      <div id="register-form" class="hidden">
+        <h3 class="text-xl font-bold mb-4 text-center">Đăng Ký Tài Khoản</h3>
+        <input type="text" id="reg-username" placeholder="Tên đăng nhập" class="w-full bg-gray-700 p-2.5 rounded mb-3 text-sm border border-gray-600 focus:outline-none">
+        <input type="email" id="reg-email" placeholder="Email" class="w-full bg-gray-700 p-2.5 rounded mb-3 text-sm border border-gray-600 focus:outline-none">
+        <input type="password" id="reg-password" placeholder="Mật khẩu" class="w-full bg-gray-700 p-2.5 rounded mb-4 text-sm border border-gray-600 focus:outline-none">
+        <button onclick="submitRegister()" class="w-full bg-red-600 py-2.5 rounded font-bold hover:bg-red-700 transition">Đăng Ký</button>
+        <p class="text-xs text-center mt-4 text-gray-400">Đã có tài khoản? <span onclick="switchAuthMode('login')" class="text-red-400 cursor-pointer hover:underline">Đăng nhập</span></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-center p-4 text-xs text-gray-500 border-t border-gray-700 mt-12">
+    © 2026 MOVIE FLIX - Đồ án Website Xem Phim Trực Tuyến
+  </footer>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+    function updateHeaderUI() {
+  const userInfo = document.getElementById('user-info');
+  if (currentUser) {
+    userInfo.innerHTML = `
+      <div class="flex items-center gap-2">
+        ${currentUser.role === 'ADMIN' ? `
+          <button onclick="renderAdminDashboard()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded shadow transition">
+            🛡️ Trang Quản Trị
+          </button>
+        ` : ''}
+        <span class="text-gray-300 text-xs">Xin chào, <b class="text-white">${currentUser.username}</b></span>
+        <button onclick="logout()" class="bg-gray-700 px-3 py-1.5 rounded text-xs hover:bg-gray-600">Đăng xuất</button>
+      </div>
+    `;
+  } else {
+    userInfo.innerHTML = `
+      <button onclick="openAuthModal('login')" class="bg-amber-700 hover:bg-amber-600 px-4 py-2 rounded text-sm font-bold">Đăng nhập</button>
+      <button onclick="openAuthModal('register')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-4 py-2 rounded text-sm font-bold">Đăng ký</button>
+    `;
+  }
+}
+    function openAuthModal(mode) {
+      document.getElementById('auth-modal').classList.remove('hidden');
+      document.getElementById('auth-modal').classList.add('flex');
+      switchAuthMode(mode);
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+      document.getElementById('auth-modal').classList.remove('flex');
+    }
+
+    function switchAuthMode(mode) {
+      if (mode === 'login') {
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+      } else {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+      }
+    }
+
+    async function submitLogin() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        currentUser = data.user;
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        closeAuthModal();
+        updateHeaderUI();
+        alert('Đăng nhập thành công!');
+      } else {
+        alert(data.message);
+      }
+    }
+
+    async function submitRegister() {
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Đăng ký thành công! Hãy đăng nhập.');
+        switchAuthMode('login');
+      } else {
+        alert(data.message);
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('token');
+      updateHeaderUI();
+    }
+
+    async function filterMovies({ search, genre, country, type }) {
+      const mainContent = document.getElementById('main-content');
+      let queryParams = new URLSearchParams();
+
+      let titleText = 'Tất Cả Phim';
+      if (search) { queryParams.append('search', search); titleText = `Kết quả tìm kiếm: "${search}"`; }
+      if (genre) { queryParams.append('genre', genre); titleText = `Thể loại: ${genre}`; }
+      if (country) { queryParams.append('country', country); titleText = `Quốc gia: ${country}`; }
+      if (type) {
+        queryParams.append('type', type);
+        titleText = type === 'CINEMA' ? 'Phim Chiếu Rạp' : type === 'SERIES' ? 'Phim Bộ' : 'Phim Lẻ';
+      }
+
+      if (!search && !genre && !country && !type) {
+        mainContent.innerHTML = `
+          <section class="mb-10">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              🔥 <span class="border-l-4 border-red-500 pl-2">Top Trending Nổi Bật</span>
+            </h2>
+            <div id="trending-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+          </section>
+
+          <section class="mb-10">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              ⭐ <span class="border-l-4 border-yellow-500 pl-2">Phim Đề Cử Cho Bạn</span>
+            </h2>
+            <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-2">Tất Cả Phim</h2>
+            <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+          </section>
+        `;
+        loadTrendingMovies();
+        loadRecommendedMovies();
+        fetchAndRenderMovies(`${API_URL}/movies`, 'movie-grid');
+        return;
+      }
+
+      mainContent.innerHTML = `
+        <h2 class="text-xl font-bold mb-6 border-l-4 border-red-500 pl-2">${titleText}</h2>
+        <div id="filtered-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+      `;
+      fetchAndRenderMovies(`${API_URL}/movies?${queryParams.toString()}`, 'filtered-grid');
+    }
+
+    async function loadTrendingMovies() {
+      try {
+        const res = await fetch(`${API_URL}/movies/featured/trending`);
+        const movies = await res.json();
+        const container = document.getElementById('trending-grid');
+        if (!container) return;
+
+        container.innerHTML = movies.slice(0, 3).map((movie, index) => `
+          <div onclick="viewMovie(${movie.id})" class="relative group rounded-xl overflow-hidden cursor-pointer shadow-2xl border border-gray-700/60 hover:scale-[1.02] transition duration-300">
+            <img src="${movie.banner_url || movie.poster_url}" class="w-full h-48 object-cover group-hover:opacity-80 transition" alt="${movie.title}">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
+              <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-md shadow">
+                TOP #${index + 1}
+              </span>
+              <h3 class="font-bold text-lg text-white group-hover:text-red-400 transition truncate">${movie.title}</h3>
+              <p class="text-xs text-gray-300 mt-1">👁️ ${(movie.views_count || 0).toLocaleString()} lượt xem</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    async function loadRecommendedMovies() {
+      try {
+        const res = await fetch(`${API_URL}/movies/featured/recommended`);
+        const movies = await res.json();
+        const container = document.getElementById('recommended-grid');
+        if (!container) return;
+
+        container.innerHTML = movies.map(movie => `
+          <div onclick="viewMovie(${movie.id})" class="bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition shadow-lg border border-gray-700/50">
+            <img src="${movie.poster_url}" class="w-full h-60 object-cover" alt="${movie.title}">
+            <div class="p-3">
+              <span class="bg-yellow-500/20 text-yellow-400 text-[10px] font-bold px-2 py-0.5 rounded">Đề Cử</span>
+              <h3 class="font-bold text-sm truncate mt-1">${movie.title}</h3>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    async function fetchAndRenderMovies(url, targetElementId) {
+      try {
+        const res = await fetch(url);
+        const movies = await res.json();
+        const grid = document.getElementById(targetElementId);
+        if (!grid) return;
+
+        if (movies.length === 0) {
+          grid.innerHTML = `<p class="col-span-4 text-gray-400">Không tìm thấy bộ phim nào phù hợp.</p>`;
+          return;
+        }
+
+        grid.innerHTML = movies.map(movie => `
+          <div onclick="viewMovie(${movie.id})" class="bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition shadow-lg border border-gray-700/50">
+            <img src="${movie.poster_url}" class="w-full h-64 object-cover" alt="${movie.title}">
+            <div class="p-3">
+              <h3 class="font-bold text-lg truncate">${movie.title}</h3>
+              <p class="text-xs text-gray-400 mt-1">${movie.genre || 'Hành Động'} | ${movie.country || 'Mỹ'}</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    function handleSearch(e) {
+      if (e.key === 'Enter') {
+        filterMovies({ search: e.target.value });
+      }
+    }
+
+    
+    async function viewMovie(id) {
+  const res = await fetch(`/api/movies/${id}`);
+  const movie = await res.json();
+
+  const main = document.getElementById('main-content');
+
+  
+  const castList = movie.cast 
+    ? movie.cast.split(',').map(c => `<span class="bg-gray-800 text-gray-300 text-xs px-3 py-1.5 rounded-full border border-gray-700">${c.trim()}</span>`).join('') 
+    : '<span class="text-xs text-gray-400">Đang cập nhật...</span>';
+
+  
+  main.innerHTML = `
+    <div class="max-w-5xl mx-auto space-y-8">
+      
+      <!-- HERO BANNER & THÔNG TIN PHIM -->
+      <div class="relative bg-gray-800 rounded-2xl overflow-hidden border border-gray-700/60 shadow-2xl flex flex-col md:flex-row">
+        <!-- Poster Phim -->
+        <div class="w-full md:w-1/3 h-80 md:h-auto relative">
+          <img src="${movie.poster_url}" class="w-full h-full object-cover" alt="${movie.title}">
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent md:hidden"></div>
+        </div>
+
+        <!-- Chi Tiết Phim -->
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">${movie.type || 'Phim'}</span>
+              <span class="bg-gray-700 text-gray-300 text-xs px-2.5 py-1 rounded-md">${movie.release_year || '2026'}</span>
+              <span class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-md border border-amber-500/30">★ 9.5</span>
+            </div>
+
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">${movie.title}</h1>
+            
+            <p class="text-gray-300 text-sm leading-relaxed mb-6">${movie.description}</p>
+            
+            <div class="grid grid-cols-2 gap-4 text-xs text-gray-400 mb-6 bg-gray-900/50 p-4 rounded-xl border border-gray-700/40">
+              <div><strong class="text-gray-200">Quốc gia:</strong> ${movie.country || 'Đang cập nhật'}</div>
+              <div><strong class="text-gray-200">Thể loại:</strong> ${movie.genre || 'Đang cập nhật'}</div>
+              <div><strong class="text-gray-200">Lượt xem:</strong> ${(movie.views_count || 0).toLocaleString()}</div>
+              <div><strong class="text-gray-200">Trạng thái:</strong> Vietsub Full HD</div>
+            </div>
+          </div>
+
+          <!-- NÚT XEM PHIM CHÍNH -->
+          <div class="flex flex-wrap gap-3">
+            <button onclick="playMovie(${movie.id}, 1)" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-red-600/30 transition flex items-center gap-2 text-base">
+              <i class="fa-solid fa-play"></i> Xem Phim
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHỌN TẬP PHIM -->
+      ${movie.episodes && movie.episodes.length > 0 ? `
+        <div class="bg-gray-800/40 border border-gray-700/60 p-6 rounded-2xl">
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-list text-red-500"></i> Danh Sách Tập Phim
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            ${movie.episodes.map(ep => `
+              <button onclick="playMovie(${movie.id}, ${ep.episode_number})" class="bg-gray-700 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg text-sm transition border border-gray-600">
+                Tập ${ep.episode_number}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- DIỄN VIÊN -->
+      <div class="bg-gray-800/40 border border-gray-700/60 p-6 rounded-2xl">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-users text-red-500"></i> Diễn Viên Tham Gia
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          ${castList}
+        </div>
+      </div>
+
+      <!-- BÌNH LUẬN -->
+      <div class="bg-gray-800/40 border border-gray-700/60 p-6 rounded-2xl">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-comments text-red-500"></i> Bình Luận Phim
+        </h3>
+        
+        <form onsubmit="handleAddComment(event)" class="mb-6 flex gap-2">
+          <input type="text" id="comment-input" placeholder="Viết bình luận của bạn về phim..." required
+                 class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+          <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition">
+            Gửi
+          </button>
+        </form>
+
+        <div id="comments-list" class="space-y-3">
+          <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-700/50">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-xs text-red-400">admin</span>
+              <span class="text-[10px] text-gray-400">10 phút trước</span>
+            </div>
+            <p class="text-sm text-gray-200">Phim cực kỳ hay luôn mọi người ơi!</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+async function playMovie(id, epNum = 1) {
+  const res = await fetch(`/api/movies/${id}`);
+  const movie = await res.json();
+  const currentEp = movie.episodes.find(e => e.episode_number == epNum) || movie.episodes[0];
+
+  const main = document.getElementById('main-content');
+
+  main.innerHTML = `
+    <div class="max-w-5xl mx-auto space-y-6">
+      <!-- Nút Quay Lại Trang Chi Tiết -->
+      <button onclick="viewMovie(${movie.id})" class="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 transition">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại chi tiết phim
+      </button>
+
+      <!-- Khung Trình Chiếu Video -->
+      <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+        <iframe src="${currentEp ? currentEp.video_url : ''}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+      </div>
+
+      <!-- Tên Phim & Tập -->
+      <div>
+        <h2 class="text-2xl font-black text-white">${movie.title} - ${currentEp ? currentEp.title : 'Tập ' + epNum}</h2>
+        <p class="text-gray-400 text-sm mt-1">${movie.description}</p>
+      </div>
+
+      <!-- Chọn Tập Phim -->
+      ${movie.episodes && movie.episodes.length > 0 ? `
+        <div class="bg-gray-800/40 border border-gray-700/60 p-5 rounded-2xl">
+          <h3 class="text-base font-bold text-white mb-3">Chọn Tập Phim</h3>
+          <div class="flex flex-wrap gap-2">
+            ${movie.episodes.map(ep => `
+              <button onclick="playMovie(${movie.id}, ${ep.episode_number})" 
+                      class="px-4 py-2 rounded-lg text-sm font-medium transition ${ep.episode_number == epNum ? 'bg-red-600 text-white font-bold' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                Tập ${ep.episode_number}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+    
+    function playVideo(url, title) {
+      const player = document.getElementById('player');
+      const titleEl = document.getElementById('episode-title');
+      if (player) {
+        player.src = url;
+        if (titleEl) titleEl.innerText = `Đang phát: ${title}`;
+      }
+    }
+
+    updateHeaderUI();
+    filterMovies({});
+
+    
+async function renderAdminDashboard() {
+  const main = document.getElementById('main-content');
+  
+  try {
+    const res = await fetch(`${API_URL}/movies`);
+    const movies = await res.json();
+
+    main.innerHTML = `
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          🛡️ Bảng Quản Trị Hệ Thống
+        </h2>
+        <button onclick="loadHome()" class="bg-gray-700 text-gray-200 px-4 py-2 rounded text-sm hover:bg-gray-600">
+          ← Về Trang Chủ
+        </button>
+      </div>
+
+      <!-- Form Thêm Phim Mới -->
+      <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 border border-gray-700">
+        <h3 class="text-lg font-bold text-red-400 mb-4">+ Thêm Phim Mới</h3>
+        <form onsubmit="handleAddMovie(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="admin-title" placeholder="Tên phim *" required class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none focus:ring-1 focus:ring-red-500">
+          <input type="text" id="admin-genre" placeholder="Thể loại (VD: Tình Cảm, Hài Hước)" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
+          <input type="text" id="admin-poster" placeholder="URL Ảnh Poster *" required class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
+          <input type="text" id="admin-banner" placeholder="URL Ảnh Banner" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
+          <input type="number" id="admin-year" placeholder="Năm phát hành" value="2026" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
+          <input type="text" id="admin-country" placeholder="Quốc gia" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
+          <textarea id="admin-desc" placeholder="Mô tả phim..." class="md:col-span-2 bg-gray-700 text-sm rounded p-2.5 text-white h-20 outline-none"></textarea>
+          <button type="submit" class="md:col-span-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition">
+            Thêm Phim Vào CSDL
+          </button>
+        </form>
+      </div>
+
+      <!-- Danh Sách Phim -->
+      <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700">
+        <h3 class="text-lg font-bold text-white mb-4">Danh Sách Phim Quản Lý (${movies.length})</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-gray-300">
+            <thead class="bg-gray-700 text-xs uppercase text-gray-400">
+              <tr>
+                <th class="p-3">ID</th>
+                <th class="p-3">Tên Phim</th>
+                <th class="p-3">Thể Loại</th>
+                <th class="p-3">Năm</th>
+                <th class="p-3 text-right">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${movies.map(m => `
+                <tr class="border-b border-gray-700 hover:bg-gray-700/50">
+                  <td class="p-3">#${m.id}</td>
+                  <td class="p-3 font-semibold text-white">${m.title}</td>
+                  <td class="p-3">${m.genre || 'N/A'}</td>
+                  <td class="p-3">${m.release_year}</td>
+                  <td class="p-3 text-right">
+                    <button onclick="deleteMovie(${m.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded text-xs transition">
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    console.error('Lỗi tải Admin:', err);
+  }
+}
+
+
+async function handleAddMovie(e) {
+  e.preventDefault();
+  const newMovie = {
+    title: document.getElementById('admin-title').value,
+    genre: document.getElementById('admin-genre').value,
+    poster_url: document.getElementById('admin-poster').value,
+    banner_url: document.getElementById('admin-banner').value,
+    release_year: parseInt(document.getElementById('admin-year').value),
+    country: document.getElementById('admin-country').value,
+    description: document.getElementById('admin-desc').value,
+    type: 'MOVIE'
+  };
+
+  const res = await fetch(`${API_URL}/movies`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMovie)
+  });
+
+  if (res.ok) {
+    alert('Thêm phim thành công!');
+    renderAdminDashboard();
+  } else {
+    alert('Lỗi khi thêm phim!');
+  }
+}
+
+
+async function deleteMovie(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa phim này không?')) {
+    const res = await fetch(`${API_URL}/movies/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      renderAdminDashboard();
+    } else {
+      alert('Lỗi khi xóa phim!');
+    }
+  }
+}
+function handleAddComment(e) {
+  e.preventDefault();
+  const input = document.getElementById('comment-input');
+  const commentText = input.value.trim();
+  if (!commentText) return;
+
+  const commentsList = document.getElementById('comments-list');
+  const user = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.username : 'Khách';
+
+  const newComment = document.createElement('div');
+  newComment.className = 'bg-gray-900/60 p-4 rounded-xl border border-gray-700/50';
+  newComment.innerHTML = `
+    <div class="flex justify-between items-center mb-1">
+      <span class="font-bold text-xs text-red-400">${user}</span>
+      <span class="text-[10px] text-gray-400">Vừa xong</span>
+    </div>
+    <p class="text-sm text-gray-200">${commentText}</p>
+  `;
+
+  commentsList.prepend(newComment);
+  input.value = '';
+}
+  </script>
+</body>
+</html>
