@@ -3,7 +3,6 @@ const express = require('express');
 function createMovieRoutes(db) {
   const router = express.Router();
 
-  // Lấy danh sách phim (Lọc theo Tìm kiếm, Thể loại, Quốc gia, Loại phim)
   router.get('/', async (req, res) => {
     try {
       const { search, genre, country, type } = req.query;
@@ -34,7 +33,6 @@ function createMovieRoutes(db) {
     }
   });
 
-  // Top Trending
   router.get('/featured/trending', async (req, res) => {
     try {
       const movies = await db.all('SELECT * FROM movies ORDER BY views_count DESC LIMIT 5');
@@ -44,7 +42,6 @@ function createMovieRoutes(db) {
     }
   });
 
-  // Phim Đề Cử
   router.get('/featured/recommended', async (req, res) => {
     try {
       const movies = await db.all('SELECT * FROM movies ORDER BY RANDOM() LIMIT 4');
@@ -54,7 +51,56 @@ function createMovieRoutes(db) {
     }
   });
 
-  // Chi tiết phim
+  router.post('/', async (req, res) => {
+    try {
+      const { 
+        title, 
+        description, 
+        poster_url, 
+        banner_url, 
+        release_year, 
+        type, 
+        genre, 
+        country, 
+        total_episodes, 
+        video_url 
+      } = req.body;
+
+      if (!title || !poster_url) {
+        return res.status(400).json({ message: 'Vui lòng điền Tên phim và Poster!' });
+      }
+
+      const result = await db.run(`
+        INSERT INTO movies (title, description, poster_url, banner_url, release_year, type, genre, country, total_episodes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        title, 
+        description || '', 
+        poster_url, 
+        banner_url || '', 
+        release_year || 2026, 
+        type || 'SERIES', 
+        genre || '', 
+        country || '', 
+        total_episodes || '16 Tập'
+      ]);
+
+      const movieId = result.lastID;
+
+      if (video_url && video_url.trim() !== '') {
+        await db.run(`
+          INSERT INTO episodes (movie_id, episode_number, title, video_url)
+          VALUES (?, 1, 'Tập 1', ?)
+        `, [movieId, video_url.trim()]);
+      }
+
+      return res.status(201).json({ message: 'Thêm phim thành công!', movieId });
+    } catch (error) {
+      console.error('Lỗi khi thêm phim:', error);
+      return res.status(500).json({ message: 'Lỗi server khi thêm phim mới!' });
+    }
+  });
+
   router.get('/:id', async (req, res) => {
     try {
       const movie = await db.get('SELECT * FROM movies WHERE id = ?', [req.params.id]);

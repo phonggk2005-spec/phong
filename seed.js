@@ -28,7 +28,7 @@ console.log('Đã tạo tài khoản Admin thành công!');
   `);
   await db.run(`
   INSERT INTO episodes (movie_id, episode_number, title, video_url)
-  VALUES (?, 1, 'Tập 1', 'https://playmogo.com/e/outl6myc9qgq')
+  VALUES (?, 1, 'Tập 1', '')
 `, [m1.lastID]);
   //2. Phim Dưa Hấu Lấp Lánh
   const m2 = await db.run(`
@@ -44,7 +44,7 @@ console.log('Đã tạo tài khoản Admin thành công!');
 
   await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
-    VALUES (?, 1, 'Tập 1', 'https://drive.google.com/file/d/1i8ukuOGQj4dY6Vd16_n-9lbXk_JdjmW-/preview')
+    VALUES (?, 1, 'Tập 1', 'https://archive.org/embed/duhau_1A')
   `, [m2.lastID]);
   // 3. Bố Già
   const m3 = await db.run(`
@@ -91,7 +91,7 @@ await db.run(`
   `);
   await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
-    VALUES (?, 1, 'Tập 1', 'https://playmogo.com/e/karewqwmqzny')
+    VALUES (?, 1, 'Tập 1', 'https://archive.org/embed/changhau_1')
   `, [m5.lastID]);
    await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
@@ -99,8 +99,27 @@ await db.run(`
   `, [m5.lastID]);
    await db.run(`
     INSERT INTO episodes (movie_id, episode_number, title, video_url) 
-    VALUES (?, 3, 'Tập 3', 'https://playmogo.com/e/vy1w2lum52m9')
+    VALUES (?, 3, 'Tập 3', 'https://archive.org/embed/changhau_3')
   `, [m5.lastID]);
+
+  // Phim Đối Tác Đáng Ngờ
+  const m6 = await db.run(`
+  INSERT INTO movies (title, description, poster_url, banner_url, release_year, type, genre, country, views_count)
+  VALUES (
+    'Đối Tác Đáng Ngờ',
+    'Noh Ji-wook, một công tố viên tài giỏi nhưng cộc lốc, vô tình bị cuốn vào vụ án giết người bí ẩn cùng Eun Bong-hee, một tập sự tư pháp bị nghi ngờ là thủ phạm. Cả hai cùng hợp tác để tìm ra sát nhân thực sự.',
+    'https://image.tmdb.org/t/p/w500/vG39bSg6g23A12599X87B5V.jpg',
+    'https://image.tmdb.org/t/p/original/m9m5O3uE3xX4T9uL5c0q5M8J0m.jpg',
+    2017, 'SERIES', 'Tình Cảm', 'Hàn Quốc', 180000
+  )
+`);
+
+await db.run(`
+  INSERT INTO episodes (movie_id, episode_number, title, video_url)
+  VALUES (?, 1, 'Tập 1', '')
+`, [m6.lastID]);
+
+
   console.log('✅ ĐÃ NẠP DỮ LIỆU THÀNH CÔNG!');
   process.exit();
 }

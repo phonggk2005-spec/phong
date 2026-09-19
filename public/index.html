@@ -484,20 +484,57 @@ async function renderAdminDashboard() {
         </button>
       </div>
 
-      <!-- Form Thêm Phim Mới -->
-      <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8 border border-gray-700">
-        <h3 class="text-lg font-bold text-red-400 mb-4">+ Thêm Phim Mới</h3>
-        <form onsubmit="handleAddMovie(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" id="admin-title" placeholder="Tên phim *" required class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none focus:ring-1 focus:ring-red-500">
-          <input type="text" id="admin-genre" placeholder="Thể loại (VD: Tình Cảm, Hài Hước)" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
-          <input type="text" id="admin-poster" placeholder="URL Ảnh Poster *" required class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
-          <input type="text" id="admin-banner" placeholder="URL Ảnh Banner" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
-          <input type="number" id="admin-year" placeholder="Năm phát hành" value="2026" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
-          <input type="text" id="admin-country" placeholder="Quốc gia" class="bg-gray-700 text-sm rounded p-2.5 text-white outline-none">
-          <textarea id="admin-desc" placeholder="Mô tả phim..." class="md:col-span-2 bg-gray-700 text-sm rounded p-2.5 text-white h-20 outline-none"></textarea>
-          <button type="submit" class="md:col-span-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition">
-            Thêm Phim Vào CSDL
-          </button>
+     <!-- Khối Form Thêm Phim Mới -->
+<form id="add-movie-form" onsubmit="handleAddMovie(event)" class="space-y-4">
+  <h2 class="text-xl font-bold text-red-500 mb-4">+ Thêm Phim Mới</h2>
+
+  <!-- Hàng 1: Tên phim & Thể loại -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="text" id="movie-title" placeholder="Tên phim *" required
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+    
+    <input type="text" id="movie-genre" placeholder="Thể loại (VD: Tình Cảm, Hài Hước)"
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+  </div>
+
+  <!-- Hàng 2: Poster & Banner -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="url" id="movie-poster" placeholder="URL Ảnh Poster *" required
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+    
+    <input type="url" id="movie-banner" placeholder="URL Ảnh Banner"
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+  </div>
+
+  <!-- Hàng 3: Năm phát hành & Quốc gia -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="number" id="movie-year" value="2026" placeholder="Năm phát hành"
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+    
+    <input type="text" id="movie-country" placeholder="Quốc gia"
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+
+           <input type="text" id="movie-total-episodes" placeholder="Số tập (VD: 16 Tập hoặc Full)"
+         class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
+  </div>
+
+  <!-- Hàng 4: Mô tả phim -->
+  <div>
+    <textarea id="movie-description" rows="3" placeholder="Mô tả phim..."
+              class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 resize-none"></textarea>
+  </div>
+
+  <!-- Hàng 5: Link nhúng Video (Chuẩn giao diện tối, tách rời khỏi nút) -->
+  <div>
+    <input type="url" id="movie-video-url" placeholder="VD: https://playmogo.com/e/outl6myc9qgq"
+           class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-red-500">
+  </div>
+
+  <!-- Hàng 6: Nút submit tràn full chiều rộng -->
+  <button type="submit" 
+          class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-red-600/30">
+    Thêm Phim Vào CSDL
+  </button>
         </form>
       </div>
 
@@ -542,28 +579,36 @@ async function renderAdminDashboard() {
 
 async function handleAddMovie(e) {
   e.preventDefault();
-  const newMovie = {
-    title: document.getElementById('admin-title').value,
-    genre: document.getElementById('admin-genre').value,
-    poster_url: document.getElementById('admin-poster').value,
-    banner_url: document.getElementById('admin-banner').value,
-    release_year: parseInt(document.getElementById('admin-year').value),
-    country: document.getElementById('admin-country').value,
-    description: document.getElementById('admin-desc').value,
-    type: 'MOVIE'
+
+  const movieData = {
+    title: document.getElementById('movie-title').value,
+    genre: document.getElementById('movie-genre').value,
+    poster_url: document.getElementById('movie-poster').value,
+    banner_url: document.getElementById('movie-banner').value,
+    release_year: document.getElementById('movie-year').value,
+    country: document.getElementById('movie-country').value,
+    total_episodes: document.getElementById('movie-episodes').value, // Lấy giá trị từ ô "Số tập"
+    description: document.getElementById('movie-description').value,
+    video_url: document.getElementById('movie-video-url').value      // Lấy link nhúng video
   };
 
-  const res = await fetch(`${API_URL}/movies`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newMovie)
-  });
+  try {
+    const res = await fetch('/api/movies', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(movieData)
+    });
 
-  if (res.ok) {
-    alert('Thêm phim thành công!');
-    renderAdminDashboard();
-  } else {
-    alert('Lỗi khi thêm phim!');
+    if (res.ok) {
+      alert('Thêm phim và tập 1 thành công!');
+      window.location.href = '/'; // Chuyển về trang chủ xem phim mới ngay
+    } else {
+      const err = await res.json();
+      alert('Lỗi: ' + (err.error || 'Không thể thêm phim!'));
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Đã xảy ra lỗi kết nối đến server!');
   }
 }
 
